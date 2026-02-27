@@ -1,11 +1,23 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Home, CalendarDays, Bell } from 'lucide-react-native';
 import { ExploreScreen } from '../features/catalog/screens/ExploreScreen';
+import { BusinessDetailScreen } from '../features/catalog/screens/BusinessDetailScreen';
 import { MyAppointmentsScreen } from '../features/appointments/screens/MyAppointmentsScreen';
 import { AlertsScreen } from '../features/profile/screens/AlertsScreen';
 
 const Tab = createBottomTabNavigator();
+const ExploreStack = createNativeStackNavigator();
+
+const ExploreStackNavigator: React.FC = () => {
+  return (
+    <ExploreStack.Navigator screenOptions={{ headerShown: false }}>
+      <ExploreStack.Screen name="ExploreList" component={ExploreScreen} />
+      <ExploreStack.Screen name="BusinessDetail" component={BusinessDetailScreen} />
+    </ExploreStack.Navigator>
+  );
+};
 
 export const ClientTabs: React.FC = () => {
   return (
@@ -29,7 +41,7 @@ export const ClientTabs: React.FC = () => {
     >
       <Tab.Screen
         name="Explorar"
-        component={ExploreScreen}
+        component={ExploreStackNavigator}
         options={{
           tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
         }}

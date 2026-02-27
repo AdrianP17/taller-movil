@@ -18,6 +18,8 @@ export interface Business {
   address: string;
   workingHours: Record<string, { open: string; close: string }>;
   isActive: boolean;
+  serviceCount?: number;
+  averageRating?: number;
 }
 
 export interface Service {
