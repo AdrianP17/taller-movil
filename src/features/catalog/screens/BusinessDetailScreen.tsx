@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft, ChevronRight, MapPin, Star, Clock } from 'lucide-react-native';
 import { useBusinessDetail } from '../hooks/useBusinesses';
@@ -38,14 +38,15 @@ function formatReviewDate(createdAt: any): string {
 export const BusinessDetailScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+  const insets = useSafeAreaInsets();
   const { businessId } = route.params;
   const { detail, isLoading } = useBusinessDetail(businessId);
 
   if (isLoading || !detail) {
     return (
-      <SafeAreaView style={styles.centered}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color="#7C3AED" />
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -58,7 +59,7 @@ export const BusinessDetailScreen: React.FC = () => {
   const listData = [...headerData, ...servicesData, ...reviewHeaderData, ...reviewsData];
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <View style={styles.container}>
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <ChevronLeft size={24} color="#111827" />
@@ -148,7 +149,7 @@ export const BusinessDetailScreen: React.FC = () => {
           return null;
         }}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -168,10 +169,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    paddingBottom: 12,
+    paddingTop: 12,
   },
   backBtn: {
     width: 40,
@@ -203,7 +203,6 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 15,
     color: '#4B5563',
-    lineHeight: 22,
     marginBottom: 12,
   },
   addressRow: {

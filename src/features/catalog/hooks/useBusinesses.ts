@@ -26,6 +26,7 @@ interface BusinessDetail {
 export const useBusinesses = () => {
   const [businesses, setBusinesses] = useState<BusinessWithMeta[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchBusinesses = async () => {
     setIsLoading(true);
@@ -65,6 +66,7 @@ export const useBusinesses = () => {
       setBusinesses(results);
     } catch (err) {
       console.error('Error fetching businesses:', err);
+      setError('Error al cargar los negocios');
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +76,7 @@ export const useBusinesses = () => {
     fetchBusinesses();
   }, []);
 
-  return { businesses, isLoading, refetch: fetchBusinesses };
+  return { businesses, isLoading, refetch: fetchBusinesses, error };
 };
 
 export const useBusinessDetail = (businessId: string) => {

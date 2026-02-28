@@ -1,23 +1,67 @@
-import React from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
   View,
   Text,
-  FlatList,
-  TouchableOpacity,
   StyleSheet,
+  FlatList,
+  RefreshControl,
+  TextInput,
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronRight, MapPin, Star } from 'lucide-react-native';
 import { useAuthContext } from '../../../context/AuthContext';
 import { useBusinesses } from '../hooks/useBusinesses';
+import { BusinessCard } from '../components/BusinessCard';
+import { Business } from '../../../types';
 
 export const ExploreScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const { userData } = useAuthContext();
-  const { businesses, isLoading } = useBusinesses();
+  const { businesses, isLoading, error } = useBusinesses();
+  const [refreshing, setRefreshing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filtrar negocios por nombre
+  const filteredBusinesses = useMemo(() => {
+    if (!searchQuery.trim()) return businesses;
+
+    const query = searchQuery.toLowerCase().trim();
+    return businesses.filter(business =>
+      business.name.toLowerCase().includes(query)
+    );
+  }, [businesses, searchQuery]);
 
   const firstName = userData?.fullName?.split(' ')[0] ?? 'Usuario';
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // El hook useBusinesses ya maneja la actualización en tiempo real
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  const handleBusinessPress = (business: Business) => {
+    navigation.navigate('BusinessDetail', { businessId: business.businessId });
+  };
+
+  const renderListHeader = useCallback(() => (
+    <Text style={styles.sectionTitle}>
+      {searchQuery ? `RESULTADOS (${filteredBusinesses.length})` : 'NEGOCIOS DISPONIBLES'}
+    </Text>
+  ), [searchQuery, filteredBusinesses.length]);
+
+  const renderEmpty = () => {
+    if (isLoading) return null;
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyEmoji}>🏪</Text>
+        <Text style={styles.emptyTitle}>No hay negocios disponibles</Text>
+        <Text style={styles.emptySubtitle}>
+          Vuelve más tarde para ver nuevos negocios
+        </Text>
+      </View>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -27,55 +71,71 @@ export const ExploreScreen: React.FC = () => {
     );
   }
 
+
+  const renderError = () => (
+    <View style={styles.emptyContainer}>
+      <Text style={styles.emptyEmoji}>⚠️</Text>
+      <Text style={styles.emptyTitle}>Error al cargar</Text>
+      <Text style={styles.emptySubtitle}>{error}</Text>
+    </View>
+  );
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        {renderError()}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <FlatList
-        data={businesses}
-        keyExtractor={(item) => item.businessId}
-        contentContainerStyle={styles.list}
-        ListHeaderComponent={
-          <View style={styles.header}>
-            <Text style={styles.greeting}>¡Hola, {firstName}! 👋</Text>
-            <Text style={styles.subtitle}>Encuentra tu próxima cita perfecta</Text>
-            <Text style={styles.sectionTitle}>NEGOCIOS DISPONIBLES</Text>
-          </View>
-        }
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyEmoji}>🏪</Text>
-            <Text style={styles.emptyTitle}>No hay negocios disponibles</Text>
-            <Text style={styles.emptySubtitle}>Vuelve pronto</Text>
-          </View>
-        }
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.card}
-            activeOpacity={0.7}
-            onPress={() =>
-              navigation.navigate('BusinessDetail', { businessId: item.businessId })
-            }
-          >
-            <View style={styles.cardHeader}>
-              <Text style={styles.cardName}>{item.name}</Text>
-              {item.avgRating > 0 && (
-                <View style={styles.ratingBadge}>
-                  <Star size={14} color="#F59E0B" fill="#F59E0B" />
-                  <Text style={styles.ratingText}>{item.avgRating}</Text>
-                </View>
-              )}
-              <ChevronRight size={20} color="#9CA3AF" style={{ marginLeft: 'auto' }} />
-            </View>
-            <Text style={styles.cardDescription} numberOfLines={2}>
-              {item.description}
+
+      {/* Header con saludo y búsqueda fuera del FlatList */}
+      <View style={styles.header}>
+        <Text style={styles.greeting}>¡Hola, {firstName}! 👋</Text>
+        <Text style={styles.subtitle}>Encuentra tu próxima cita perfecta</Text>
+
+        <View style={styles.searchContainer}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Buscar negocios..."
+            placeholderTextColor="#9CA3AF"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
+            autoCorrect={false}
+          />
+          {searchQuery.length > 0 && (
+            <Text
+              style={styles.clearButton}
+              onPress={() => setSearchQuery('')}
+            >
+              ✕
             </Text>
-            <View style={styles.cardFooter}>
-              <MapPin size={14} color="#6B7280" />
-              <Text style={styles.cardMeta}>{item.address}</Text>
-              <Text style={styles.cardDot}>·</Text>
-              <Text style={styles.cardMeta}>{item.serviceCount} servicios</Text>
-            </View>
-          </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
+      <FlatList
+        data={filteredBusinesses}
+        keyExtractor={(item) => item.businessId}
+        renderItem={({ item }) => (
+          <BusinessCard business={item} onPress={() => handleBusinessPress(item)} />
         )}
+        ListHeaderComponent={renderListHeader}
+        ListEmptyComponent={renderEmpty}
+        contentContainerStyle={filteredBusinesses.length === 0 ? styles.emptyList : styles.list}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#7C3AED"
+            colors={['#7C3AED']}
+          />
+        }
       />
     </View>
   );
@@ -96,17 +156,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 24,
   },
-  header: {
-    paddingTop: 16,
-    marginBottom: 8,
-  },
   greeting: {
     fontSize: 24,
     fontWeight: '700',
     color: '#111827',
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 14,
+  emptySubtitle: {
+    fontSize: 15,
     color: '#6B7280',
     marginTop: 4,
     marginBottom: 20,
@@ -118,63 +176,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 8,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
-  },
-  cardName: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  ratingBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FEF3C7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 12,
-    gap: 4,
-  },
-  ratingText: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#92400E',
-  },
-  cardDescription: {
-    fontSize: 14,
-    color: '#4B5563',
-    lineHeight: 20,
-    marginBottom: 10,
-  },
-  cardFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  cardMeta: {
-    fontSize: 13,
-    color: '#6B7280',
-  },
-  cardDot: {
-    fontSize: 13,
-    color: '#D1D5DB',
-    marginHorizontal: 4,
-  },
-  empty: {
-    alignItems: 'center',
-    paddingTop: 60,
-  },
   emptyEmoji: {
     fontSize: 48,
     marginBottom: 12,
@@ -184,9 +185,51 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#111827',
   },
-  emptySubtitle: {
-    fontSize: 14,
+  emptyList: {
+    flexGrow: 1,
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 24,
+    paddingBottom: 8,
+    backgroundColor: '#F9FAFB',
+  },
+  subtitle: {
+    fontSize: 15,
     color: '#6B7280',
-    marginTop: 4,
+    marginBottom: 24,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  searchIcon: {
+    fontSize: 18,
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#111827',
+    padding: 0,
+  },
+  clearButton: {
+    fontSize: 16,
+    color: '#9CA3AF',
+    paddingHorizontal: 8,
+    fontWeight: '600',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
   },
 });
