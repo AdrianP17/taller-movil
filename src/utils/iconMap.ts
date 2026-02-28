@@ -1,0 +1,61 @@
+const ICON_EMOJI_MAP: Record<string, string> = {
+  scissors: '✂️',
+  palette: '🎨',
+  sparkles: '✨',
+  brush: '🖌️',
+  heart: '❤️',
+  star: '⭐',
+  flame: '🔥',
+  droplet: '💧',
+  sun: '☀️',
+  moon: '🌙',
+  flower: '🌸',
+  leaf: '🍃',
+  gem: '💎',
+  crown: '👑',
+  magic: '🪄',
+  mirror: '🪞',
+  nail: '💅',
+  hand: '🤲',
+  eye: '👁️',
+  lips: '👄',
+  soap: '🧼',
+  lotion: '🧴',
+  comb: '🪮',
+  razor: '🪒',
+  ribbon: '🎀',
+  perfume: '🧪',
+  massage: '💆',
+  bath: '🛁',
+  towel: '🧖',
+  calendar: '📅',
+  clock: '🕐',
+  wrench: '🔧',
+  car: '🚗',
+  tire: '🛞',
+  oil: '🛢️',
+  bolt: '🔩',
+  hammer: '🔨',
+  gear: '⚙️',
+  battery: '🔋',
+  paint: '🖌️',
+  spray: '💨',
+  wash: '🫧',
+  light: '💡',
+  plug: '🔌',
+  key: '🔑',
+  shield: '🛡️',
+  check: '✅',
+  tools: '🛠️',
+  gauge: '🌡️',
+  filter: '🔍',
+};
+
+export function getIconEmoji(iconName: string): string {
+  if (!iconName) return '📋';
+
+  const isAlreadyEmoji = /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(iconName);
+  if (isAlreadyEmoji) return iconName;
+
+  return ICON_EMOJI_MAP[iconName.toLowerCase()] ?? '📋';
+}
