@@ -7,6 +7,8 @@ import { ClientTabs } from './ClientTabs';
 import { BusinessTabs } from './BusinessTabs';
 import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
 import { BusinessSetupScreen } from '../features/auth/screens/BusinessSetupScreen';
+import { EditBusinessScreen } from '../features/catalog/screens/EditBusinessScreen';
+import { WorkingHoursScreen } from '../features/catalog/screens/WorkingHoursScreen';
 
 const MainStack = createNativeStackNavigator();
 
@@ -21,6 +23,8 @@ const AuthenticatedNavigator: React.FC<{ role?: string; needsSetup: boolean }> =
         <>
           <MainStack.Screen name="Tabs" component={TabsComponent} />
           <MainStack.Screen name="Profile" component={ProfileScreen} />
+          <MainStack.Screen name="EditBusiness" component={EditBusinessScreen} />
+          <MainStack.Screen name="WorkingHours" component={WorkingHoursScreen} />
         </>
       )}
     </MainStack.Navigator>
