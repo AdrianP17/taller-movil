@@ -9,6 +9,12 @@ import { ProfileScreen } from '../features/profile/screens/ProfileScreen';
 import { BusinessSetupScreen } from '../features/auth/screens/BusinessSetupScreen';
 import { EditBusinessScreen } from '../features/catalog/screens/EditBusinessScreen';
 import { WorkingHoursScreen } from '../features/catalog/screens/WorkingHoursScreen';
+import { BusinessDetailScreen } from '../features/catalog/screens/BusinessDetailScreen';
+import { BookAppointmentScreen } from '../features/appointments/screens/BookAppointmentScreen';
+import { BookingConfirmationScreen } from '../features/appointments/screens/BookingConfirmationScreen';
+import { AppointmentDetailScreen } from '../features/appointments/screens/AppointmentDetailScreen';
+import { UpcomingAppointmentsScreen } from '../features/appointments/screens/UpcomingAppointmentsScreen';
+import { BusinessAppointmentDetailScreen } from '../features/appointments/screens/BusinessAppointmentDetailScreen';
 
 const MainStack = createNativeStackNavigator();
 
@@ -25,6 +31,16 @@ const AuthenticatedNavigator: React.FC<{ role?: string; needsSetup: boolean }> =
           <MainStack.Screen name="Profile" component={ProfileScreen} />
           <MainStack.Screen name="EditBusiness" component={EditBusinessScreen} />
           <MainStack.Screen name="WorkingHours" component={WorkingHoursScreen} />
+          <MainStack.Screen name="BusinessDetail" component={BusinessDetailScreen} />
+          <MainStack.Screen name="BookAppointment" component={BookAppointmentScreen} />
+          <MainStack.Screen
+            name="BookingConfirmation"
+            component={BookingConfirmationScreen}
+            options={{ gestureEnabled: false }}
+          />
+          <MainStack.Screen name="AppointmentDetail" component={AppointmentDetailScreen} />
+          <MainStack.Screen name="UpcomingAppointments" component={UpcomingAppointmentsScreen} />
+          <MainStack.Screen name="BusinessAppointmentDetail" component={BusinessAppointmentDetailScreen} />
         </>
       )}
     </MainStack.Navigator>
