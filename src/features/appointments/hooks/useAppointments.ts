@@ -28,7 +28,11 @@ export const useMyAppointments = (clientUid: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchAppointments = useCallback(async () => {
-    if (!clientUid) return;
+    if (!clientUid) {
+      setAppointments([]);
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     try {
       const q = query(
@@ -129,7 +133,28 @@ export const createAppointment = async (params: CreateAppointmentParams) => {
     notes: params.notes || '',
     createdAt: serverTimestamp(),
   });
+  const serviceDoc = await getDoc(doc(db, 'services', params.serviceId));
 
+  let serviceName = 'Servicio';
+  if (serviceDoc.exists()) {
+    serviceName = (serviceDoc.data() as Service).name;
+  }
+
+  const bizDoc = await getDoc(doc(db, 'businesses', params.businessId));
+  let businessName = 'Negocio';
+  if (bizDoc.exists()) {
+    businessName = (bizDoc.data() as Business).name;
+  }
+
+  await addDoc(collection(db, "notifications"), {
+    targetUid: params.clientUid,
+    businessId: params.businessId,
+    title: "¡ Cita registrada!",
+    body: `Tu cita de ${serviceName} en ${businessName} ha sido creada para el ${params.date} a las ${params.startTime}.`, type: "appointment_created",
+    isRead: false,
+    relatedAppointmentId: docRef.id,
+    createdAt: serverTimestamp(),
+  });
   return docRef.id;
 };
 
