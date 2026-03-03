@@ -15,6 +15,7 @@ import { BookingConfirmationScreen } from '../features/appointments/screens/Book
 import { AppointmentDetailScreen } from '../features/appointments/screens/AppointmentDetailScreen';
 import { UpcomingAppointmentsScreen } from '../features/appointments/screens/UpcomingAppointmentsScreen';
 import { BusinessAppointmentDetailScreen } from '../features/appointments/screens/BusinessAppointmentDetailScreen';
+import { EditProfileScreen } from '../features/profile/screens/EditProfileScreen';
 
 const MainStack = createNativeStackNavigator();
 
@@ -29,6 +30,7 @@ const AuthenticatedNavigator: React.FC<{ role?: string; needsSetup: boolean }> =
         <>
           <MainStack.Screen name="Tabs" component={TabsComponent} />
           <MainStack.Screen name="Profile" component={ProfileScreen} />
+          <MainStack.Screen name="EditProfile" component={EditProfileScreen} />
           <MainStack.Screen name="EditBusiness" component={EditBusinessScreen} />
           <MainStack.Screen name="WorkingHours" component={WorkingHoursScreen} />
           <MainStack.Screen name="BusinessDetail" component={BusinessDetailScreen} />

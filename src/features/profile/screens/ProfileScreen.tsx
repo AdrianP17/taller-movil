@@ -11,11 +11,11 @@ export const ProfileScreen: React.FC = () => {
 
   const initials = userData?.fullName
     ? userData.fullName
-        .split(' ')
-        .map((w) => w[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
     : '?';
 
   return (
@@ -42,6 +42,13 @@ export const ProfileScreen: React.FC = () => {
         {userData?.phone && (
           <Text style={styles.phone}>📞 {userData.phone}</Text>
         )}
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => navigation.navigate('EditProfile' as never)}
+        >
+          <Text style={styles.editButtonText}>Editar Perfil</Text>
+        </TouchableOpacity>
+
       </View>
     </SafeAreaView>
   );
@@ -122,4 +129,15 @@ const styles = StyleSheet.create({
     color: '#374151',
     marginTop: 16,
   },
+  editButton: {
+    marginTop: 24,
+    backgroundColor: '#7C3AED',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  editButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+  }
 });

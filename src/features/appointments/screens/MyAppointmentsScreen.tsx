@@ -46,7 +46,12 @@ export const MyAppointmentsScreen: React.FC = () => {
 
   const handleCancel = async () => {
     if (!cancelTarget) return;
+    if (cancelTarget.status === 'cancelled' || cancelTarget.status === 'completed') {
+      setCancelTarget(null);
+      return;
+    }
     setCancelling(true);
+
     try {
       await cancelAppointment(cancelTarget.appointmentId);
       setCancelTarget(null);
@@ -159,7 +164,11 @@ export const MyAppointmentsScreen: React.FC = () => {
       <Modal visible={!!cancelTarget} transparent animationType="fade" onRequestClose={() => setCancelTarget(null)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>¿Cancelar cita?</Text>
+            <Text style={styles.modalTitle}>
+              {cancelTarget?.status === 'pending'
+                ? '¿Confirmar o cancelar cita?'
+                : '¿Cancelar cita?'}
+            </Text>
             <Text style={styles.modalSubtitle}>
               Esta acción no se puede deshacer. Tu horario quedará disponible
               para otros clientes.

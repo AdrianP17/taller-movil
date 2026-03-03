@@ -34,8 +34,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
       const data = userDoc.data() as User;
-      setUserData(data);
-
+      setUserData({
+        ...data,
+        uid: userDoc.id,
+      });
       if (data.role === 'business_owner') {
         const bizDoc = await getDoc(doc(db, 'businesses', `biz_${uid}`));
         setHasBusiness(bizDoc.exists());
