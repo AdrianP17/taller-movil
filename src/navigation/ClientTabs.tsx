@@ -7,6 +7,10 @@ import { BusinessDetailScreen } from '../features/catalog/screens/BusinessDetail
 import { MyAppointmentsScreen } from '../features/appointments/screens/MyAppointmentsScreen';
 import { AlertsScreen } from '../features/profile/screens/AlertsScreen';
 import { AppHeader } from '../components/AppHeader';
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { db } from "../services/firebase";
+import { useAuthContext } from "../context/AuthContext";
+import { useEffect, useState } from "react";
 
 const Tab = createBottomTabNavigator();
 const ExploreStack = createNativeStackNavigator();
@@ -21,6 +25,25 @@ const ExploreStackNavigator: React.FC = () => {
 };
 
 export const ClientTabs: React.FC = () => {
+  const { firebaseUser } = useAuthContext();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!firebaseUser) return;
+
+    const q = query(
+      collection(db, "notifications"),
+      where("targetUid", "==", firebaseUser.uid),
+      where("isRead", "==", false)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setUnreadCount(snapshot.size);
+    });
+
+    return () => unsubscribe();
+  }, [firebaseUser]);
+  
   return (
     <Tab.Navigator
       screenOptions={{
@@ -60,7 +83,7 @@ export const ClientTabs: React.FC = () => {
         component={AlertsScreen}
         options={{
           tabBarIcon: ({ color, size }) => <Bell size={size} color={color} />,
-          tabBarBadge: 0,
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
         }}
       />
     </Tab.Navigator>
