@@ -23,6 +23,9 @@ import { cancelAppointment, AppointmentWithDetails } from '../hooks/useAppointme
 import { getIconEmoji } from '../../../utils/iconMap';
 import { formatDateLong } from '../../../utils/timeSlots';
 
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../services/firebase';
+
 const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; accent: string }> = {
   pending: { label: 'Pendiente', bg: '#FEF3C7', text: '#92400E', accent: '#F59E0B' },
   confirmed: { label: 'Confirmada', bg: '#D1FAE5', text: '#065F46', accent: '#10B981' },
@@ -53,6 +56,21 @@ export const AppointmentDetailScreen: React.FC = () => {
     } finally {
       setCancelling(false);
       setShowCancelModal(false);
+    }
+  };
+  const handleConfirm = async () => {
+    try {
+      await updateDoc(
+        doc(db, 'appointments', appointment.appointmentId),
+        {
+          status: 'confirmed',
+        }
+      );
+
+      onRefetch?.();
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error al confirmar cita:', error);
     }
   };
 
@@ -124,6 +142,15 @@ export const AppointmentDetailScreen: React.FC = () => {
             </View>
           </>
         ) : null}
+
+        {appointment.status === 'pending' && (
+          <TouchableOpacity
+            style={styles.confirmBtn}
+            onPress={handleConfirm}
+          >
+            <Text style={styles.confirmBtnText}>Confirmar cita</Text>
+          </TouchableOpacity>
+        )}
 
         {canCancel && (
           <TouchableOpacity
@@ -261,4 +288,17 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#E5E7EB', backgroundColor: '#FFFFFF',
   },
   modalKeepBtnText: { color: '#374151', fontSize: 16, fontWeight: '600' },
+  confirmBtn: {
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    backgroundColor: '#10B981',
+    marginTop: 8,
+  },
+
+  confirmBtnText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });
