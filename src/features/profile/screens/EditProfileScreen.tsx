@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useAuthContext } from '../../../context/AuthContext';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../../services/firebase';
 import { useNavigation } from '@react-navigation/native';
 
@@ -18,21 +18,27 @@ export const EditProfileScreen: React.FC = () => {
 
     const handleSave = async () => {
         if (!firebaseUser) return;
+        
+        if (!fullName.trim()) {
+        alert('El nombre es obligatorio');
+        return;
+    }
 
         try {
             setIsLoading(true);
 
             await updateDoc(doc(db, 'users', firebaseUser.uid), {
-                fullName,
-                phone,
+                fullName: fullName.trim(),
+                phone: phone.trim(),
+                updatedAt: serverTimestamp(),
             });
 
             await refreshUserData();
             alert('Perfil actualizado');
             navigation.goBack();
         } catch (error) {
-            console.error(error);
-            alert('Error al actualizar');
+            console.error('Error actualizando perfil:', error);
+            alert('Error al actualizar el perfil');
         } finally {
             setIsLoading(false);
         }
