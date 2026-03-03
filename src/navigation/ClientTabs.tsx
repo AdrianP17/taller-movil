@@ -6,6 +6,7 @@ import { ExploreScreen } from '../features/catalog/screens/ExploreScreen';
 import { BusinessDetailScreen } from '../features/catalog/screens/BusinessDetailScreen';
 import { MyAppointmentsScreen } from '../features/appointments/screens/MyAppointmentsScreen';
 import { AlertsScreen } from '../features/profile/screens/AlertsScreen';
+import { AppHeader } from '../components/AppHeader';
 
 const Tab = createBottomTabNavigator();
 const ExploreStack = createNativeStackNavigator();
@@ -23,7 +24,8 @@ export const ClientTabs: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        header: () => <AppHeader />,
         tabBarActiveTintColor: '#7C3AED',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
